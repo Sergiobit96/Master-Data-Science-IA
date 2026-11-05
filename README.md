@@ -8,7 +8,7 @@ Proyecto transversal / TFM · Máster de Data Science e IA · Evolve · 2026–2
 |---|---|
 | Alejandro Ronda Navazo | [@arondax](https://github.com/arondax) |
 | Susana Portela García de Blas | [@Sportelagdb](https://github.com/Sportelagdb) |
-| _Nombre y apellidos_ | _@usuario_ |
+| Sergio Carrasco Espinosa | [@Sergiobit96](https://github.com/Sergiobit96)] |
 
 ## Estado
 
