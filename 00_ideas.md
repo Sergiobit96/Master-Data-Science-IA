@@ -6,6 +6,7 @@
 |---|---|
 | Alejandro Ronda Navazo | [@arondax](https://github.com/arondax) |
 | Sergio _(apellidos)_ | _@usuario_ |
+| Susana _(apellidos)_ | _@usuario_ |
 
 Repositorio: _enlace al repositorio privado_
 
@@ -17,8 +18,6 @@ Repositorio: _enlace al repositorio privado_
 | Tarea de ML | Regresión de series temporales (D+1) | Clasificación multietiqueta | Clasificación binaria por línea y franja |
 | Datos | Abiertos, con histórico desde 2019 | APIs públicas; el cruce entre fuentes es difícil | Abiertos, pero el histórico hay que capturarlo |
 | Riesgo principal | Tema muy trabajado; el cambio a 15 min | Pocos ejemplos por grupo terapéutico | Profundidad del histórico propio |
-
-Nuestra opción preferida es la **idea 3**. Explicamos por qué al final del documento.
 
 ---
 
@@ -97,6 +96,8 @@ El precio mayorista español es de los más volátiles de Europa: en un mismo d�
 
 ### Título y descripción
 
+**Nombre provisional: previsión de efectos secundarios**
+
 Sistema que predice los posibles efectos adversos asociados a un principio activo mediante técnicas de Machine Learning. Usaríamos la información de las fichas técnicas de medicamentos y otras fuentes farmacológicas públicas para entrenar un modelo que prediga varios efectos adversos a la vez.
 
 ### Problema y usuario
@@ -139,7 +140,7 @@ La principal dificultad será relacionar correctamente los datos de las distinta
 
 ### Título y descripción
 
-**Nombre provisional: _¿Llego?_ — previsión de incidencias en Cercanías.**
+**Nombre provisional: Previsión de incidencias en Cercanías.**
 
 Herramienta que estima, para cada línea y franja horaria del núcleo de Cercanías Madrid, la probabilidad de que haya retrasos o cancelaciones. El histórico de incidencias lo construimos capturando los feeds públicos en tiempo real de Renfe y lo cruzamos con el horario programado y la meteorología. Madrid es el primer alcance; el diseño permite ampliarlo después a otros núcleos y a la red nacional.
 
@@ -220,14 +221,3 @@ La herramienta no predice accidentes ni evalúa la seguridad de la infraestructu
 | Big Data | Volumen de ingesta al ampliar a toda la red (posible vía A) |
 
 ---
-
-## Opción preferida: idea 3
-
-Preferimos la idea de Cercanías por cuatro motivos:
-
-- **Usuario y valor:** tiene el usuario más concreto y la propuesta de valor más fácil de comprobar con una persona real.
-- **Recorrido completo:** obliga a construir un pipeline de datos vivo, que se reutiliza en MLOps y Big Data.
-- **Datos ya comprobados:** el acceso a los datos ya está parcialmente verificado.
-- **Ampliable:** el alcance crece de forma natural de Madrid a otros núcleos.
-
-Su riesgo principal es el histórico corto. Por eso empezaremos la captura antes de la actividad 1, independientemente de la decisión final.
