@@ -6,7 +6,7 @@
 |---|---|
 | Alejandro Ronda Navazo | [@arondax](https://github.com/arondax) |
 | Sergio _(apellidos)_ | _@usuario_ |
-| Susana _(apellidos)_ | _@usuario_ |
+| Susana Portela García de Blas | [_@Sportelagdb_](https://github.com/Sportelagdb) |
 
 Repositorio: _enlace al repositorio privado_
 
