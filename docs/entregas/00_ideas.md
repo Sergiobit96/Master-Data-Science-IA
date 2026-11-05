@@ -5,10 +5,10 @@
 | Integrante | Usuario de GitHub |
 |---|---|
 | Alejandro Ronda Navazo | [@arondax](https://github.com/arondax) |
-| Sergio _(apellidos)_ | _@usuario_ |
+| Sergio Carrasco Espinosa | [@Sergiobit96]_(https://github.com/Sergiobit96)] |
 | Susana Portela García de Blas | [_@Sportelagdb_](https://github.com/Sportelagdb) |
 
-Repositorio: _enlace al repositorio privado_
+Repositorio: [_enlace al repositorio privado_](https://github.com/Sergiobit96/Master-Data-Science-IA/tree/main)
 
 ## Resumen de las tres propuestas
 
