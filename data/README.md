@@ -171,13 +171,19 @@ Las paradas `SKIPPED` indican estaciones en las que el tren **no va a parar** (s
 
 **Antes de filtrar por el prefijo `10`**, confirmadlo cruzando con `routes.txt`/`trips.txt` del GTFS estático. Es más robusto filtrar por las rutas de Madrid del estático que por un prefijo deducido a ojo.
 
-### 4.7 Cifras de referencia (una sola captura)
+### 4.7 Cifras de referencia (una sola captura, en día de huelga)
 
 ✅ 17/11/2026, 19:06 hora de Madrid (martes, hora punta de tarde), núcleo de Madrid (prefijo `10`):
 - 64 trenes en el feed: 8 cancelados y 56 circulando.
 - 21 con retraso ≥ 5 min, máximo 40 min.
 
-**Es una foto de un momento.** Sirve para confirmar que la etiqueta es viable, no para estimar tasas.
+> ⚠️ **El 17/11/2026 hubo huelga en el sector ferroviario**, con incumplimiento de los servicios mínimos según el propio feed de `alerts` (ver sección 5). Estas cifras **no son representativas de un día normal**.
+
+Lo que esta captura demuestra: el feed **sí informa** retrasos y cancelaciones de trenes de Madrid, con valores distintos de 0.
+
+Lo que **no** demuestra: que en un día normal haya incidencias suficientes para entrenar un modelo. Eso sigue pendiente y requiere capturas de días sin huelga.
+
+**Duda abierta: ¿el feed incluye todos los viajes en curso?** 64 trenes de Madrid a las 19:06 parecen pocos para una red de ~1.291 viajes diarios. Puede deberse a los servicios mínimos de la huelga o a que el feed solo incluye parte de los viajes. Para comprobarlo: calcular con el GTFS estático qué viajes deberían estar circulando a la hora de una captura y compararlos con los `trip_id` presentes. Importa porque, si faltan viajes, el denominador de cualquier tasa de incidencias estaría mal.
 
 ---
 
@@ -185,27 +191,41 @@ Las paradas `SKIPPED` indican estaciones en las que el tren **no va a parar** (s
 
 ✅ Verificado: ~85 entidades por feed, ~40 KB (pesa el doble que `trip_updates` con un tercio de entidades, por el texto). Se genera con un ciclo distinto al de `trip_updates`, así que **las horas de ambos feeds nunca coinciden**: al cruzarlos, emparejad cada captura con la más cercana del otro feed.
 
-📄 **Estructura según la especificación (pendiente de verificar con una muestra de Renfe):**
+Se lee igual que `trip_updates` (mismo `FeedMessage`).
+
+### 5.1 Estructura
+
+✅ **Verificado con una alerta** (`AVISO_526684`, captura `alerts_20261117T185150Z.pb`):
 
 ```
 entity[]
+├── id                          "AVISO_526684"
 └── alert
-    ├── active_period[]         start / end en segundos Unix UTC
-    ├── informed_entity[]       a qué afecta: route_id, stop_id, trip, agency_id…
-    ├── cause                   UNKNOWN_CAUSE, TECHNICAL_PROBLEM, MAINTENANCE, WEATHER…
-    ├── effect                  NO_SERVICE, REDUCED_SERVICE, SIGNIFICANT_DELAYS, DETOUR…
-    ├── url
-    ├── header_text             TranslatedString → translation[] {text, language}
-    └── description_text        TranslatedString → translation[] {text, language}
+    ├── active_period[]
+    │   └── start               segundos Unix UTC (sin `end`: activa hasta nuevo aviso)
+    ├── informed_entity[]       una por ruta afectada
+    │   └── route_id            "10T0001C1"
+    └── description_text
+        └── translation[]       { text: "...", language: "es" }
 ```
 
-**Lo primero que hay que mirar en la EDA:**
-- Qué campos rellena realmente Renfe, y si `cause` y `effect` vienen informados o siempre `UNKNOWN`.
-- Cómo indica la línea afectada: `route_id` en `informed_entity` o solo en el texto libre.
-- **¿85 avisos activos es lo normal?** Parece mucho. Probablemente muchos son permanentes (obras, accesibilidad de estaciones) y no incidencias del momento. Habrá que distinguirlos, por ejemplo por la duración de `active_period` o porque aparecen en todas las capturas.
-- En qué idiomas viene el texto.
+En esta alerta **no aparecen** `cause`, `effect`, `header_text` ni `url`. `cause` y `effect` toman su valor por defecto (desconocido) y el texto solo está en español.
 
-Se lee igual que `trip_updates` (mismo `FeedMessage`).
+📄 Campos del estándar que otras alertas podrían traer: `active_period.end`, `informed_entity.stop_id` o `.trip`, `cause`, `effect`, `header_text`, `url`.
+
+### 5.2 Lo que muestra la alerta verificada
+
+- **Contenido:** huelga en el sector ferroviario el 17/11/2026, con afectaciones por incumplimiento de los servicios mínimos. Inicio a las 06:30 hora de Madrid, sin fin.
+- **Se informa por línea, en campos estructurados** (`route_id`), no solo en el texto. Afecta a 33 rutas: todas las líneas de Madrid salvo la C8.
+- **Los `route_id` empiezan por `10`**, igual que los `trip_id` de Madrid: segunda pista independiente de que `10` = núcleo de Madrid (⚠️ pendiente de confirmar con `routes.txt`).
+- **Cada línea tiene varios `route_id`**: la C1 tiene 2 (`10T0001C1`, `10T0002C1`) y la C5 tiene 5. Probablemente sean variantes por sentido o recorrido. **Para agrupar por línea comercial no vale el `route_id` tal cual**: hay que mapearlo, previsiblemente con `route_short_name` de `routes.txt`.
+- Aparecen rutas `C4` (sin letra) y `C9`, que no salían en los `trip_id` de `trip_updates` de la captura de las 19:06. Comprobar en `routes.txt` qué son.
+
+### 5.3 Pendiente para la EDA
+
+- Revisar el resto de alertas (~85 por captura): si algunas traen `cause`/`effect`, `end`, o se refieren a estaciones (`stop_id`) o viajes.
+- **¿85 avisos activos es lo normal?** Probablemente muchos son permanentes (obras, accesibilidad de estaciones) y no incidencias del momento. Distinguirlos por la duración de `active_period`, por si aparecen en todas las capturas o por el texto.
+- **Detectar días atípicos** (huelgas, temporales) a partir de las alertas. Decidir si se excluyen del entrenamiento o se marcan como variable: si no, el modelo aprende que esos días son lo habitual.
 
 ---
 
@@ -299,3 +319,4 @@ Se conservan como evidencia de la exploración. **No forman parte del histórico
 3. **Tratamiento de los adelantos** (retrasos negativos).
 4. **Filtro de Madrid:** por el prefijo `10` del `trip_id` o por las rutas del GTFS estático (recomendado).
 5. **Meteo:** seguir con Open-Meteo o pedir la clave de AEMET para tener datos observados.
+6. **Días atípicos (huelgas, temporales):** excluirlos del entrenamiento o incluirlos con una variable que los identifique. El primer día de captura (17/11/2026) ya es uno de ellos.
